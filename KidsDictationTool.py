@@ -1,11 +1,27 @@
 import os
+import sys  
 from gtts import gTTS
 from pydub import AudioSegment
 import time
 
 # Constants
-SILENCE_DURATION = 2000
-INTERVAL_PER_EXTRA_CHAR = 1000
+SILENCE_DURATION = 3000
+INTERVAL_PER_EXTRA_CHAR = 500
+
+def get_first_letter(s):
+    """
+    Return the first alphabetical character from the string.
+    
+    Args:
+        s (str): The input string.
+
+    Returns:
+        str: The first alphabetical character or an empty string if none found.
+    """
+    for char in s:
+        if char.isalpha():
+            return char
+    return ''
 
 def text_to_audio(phrase):
     """
@@ -17,10 +33,12 @@ def text_to_audio(phrase):
     Returns:
         str: Filename of the generated audio.
     """
+    first_letter = get_first_letter(phrase)
+    filename = f"temp_audio_{first_letter}_{time.time()}.mp3"
     tts = gTTS(phrase, lang="en")
-    filename = f"{phrase[:10]}_{time.time()}.mp3"
     tts.save(filename)
     return filename
+
 
 def main(input_txt, output_audio):
     """
@@ -43,13 +61,33 @@ def main(input_txt, output_audio):
 
             extra_interval = max(0, len(phrase) - 3) * INTERVAL_PER_EXTRA_CHAR
 
-            for _ in range(3):  # Repeat 3 times
+            for i in range(3):  # Repeat 3 times
                 concatenated_audio += audio_segment
-                concatenated_audio += AudioSegment.silent(duration=SILENCE_DURATION + extra_interval)
+                if i == 2:
+                    concatenated_audio += AudioSegment.silent(duration=SILENCE_DURATION + max(0, len(phrase) - 3) * INTERVAL_PER_EXTRA_CHAR)
+                else:
+                    concatenated_audio += AudioSegment.silent(duration=SILENCE_DURATION)
 
             os.remove(audio_filename)
 
     concatenated_audio.export(output_audio, format="mp3")
 
 if __name__ == "__main__":
-    main("input.txt", "final_output_audio.mp3")
+    # Check if a specific file is passed as an argument
+    if len(sys.argv) == 2:
+        input_txt_path = sys.argv[1]
+        if not input_txt_path.endswith('.txt'):
+            print(f"Error: {input_txt_path} is not a .txt file.")
+            sys.exit(1)
+        
+        output_audio_path = os.path.splitext(input_txt_path)[0] + ".mp3"
+        main(input_txt_path, output_audio_path)
+
+    # If no specific file is passed, process all .txt files in the directory
+    else:
+        # Scan current directory for .txt files
+        for file in os.listdir("."):
+            if file.endswith(".txt"):
+                input_txt_path = file
+                output_audio_path = os.path.splitext(file)[0] + ".mp3"  # Change extension to .mp3
+                main(input_txt_path, output_audio_path)

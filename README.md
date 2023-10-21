@@ -1,11 +1,18 @@
-
 # KidsDictationTool
 
 A specialized tool designed to aid kids' learning through auditory dictation. It takes phrases from a text file and converts them to concatenated dictation audio.
 
 ## Description
 
-In the journey of language learning for kids, auditory dictation can play a pivotal role. The `KidsDictationTool` facilitates this by taking a list of phrases separated by new lines in a text file. Each phrase is then converted into an audio snippet using Google Text-to-Speech. To ensure repetition and retention, each phrase is reiterated three times with a 2-second interval. To maintain kids' attention and give them time to process, the playback interval between phrases is determined by the length of the phrase: for each character beyond the initial three in the phrase, the interval is augmented by one second. All these audio snippets are seamlessly concatenated into a single audio file, making it easy for kids to play and practice.
+In the journey of language learning for kids, auditory dictation can play a pivotal role. The `KidsDictationTool` facilitates this by taking a list of phrases separated by new lines in a text file. Each phrase is then converted into an audio snippet using Google Text-to-Speech.
+
+**Changes in the new version:**
+- The pause interval between phrases has been increased to 3 seconds.
+- The extra interval added for each character beyond the initial three in a phrase has been reduced to half a second.
+- The generated audio filenames now have the first alphabetical character of the phrase as a prefix, providing more context to the generated files.
+- The script now supports processing a specific text file passed as an argument. If no specific file is passed, it processes all `.txt` files in the directory, creating an audio file for each.
+
+To ensure repetition and retention, each phrase is reiterated three times. The first two repetitions are followed by a 3-second pause, while the third repetition is followed by a pause that considers the length of the phrase.
 
 ## Requirements
 
@@ -27,12 +34,13 @@ brew install ffmpeg
 
 ## Usage
 
-1. Tailor your dictation content and place your phrases in `input.txt`, with each phrase on a new line.
-2. Run the script:
+1. Tailor your dictation content. If you have a specific text file, pass it as an argument:
 ```bash
-python3 KidsDictationTool.py
+python3 KidsDictationTool.py your_file.txt
 ```
-3. The resulting dictation audio will be saved as `final_output_audio.mp3`. Let your kids listen and write!
+Otherwise, the script will process all `.txt` files in the current directory.
+
+2. The resulting dictation audio will be saved with the same name as the text file but with an `.mp3` extension. Let your kids listen and write!
 
 ## Citation
 
